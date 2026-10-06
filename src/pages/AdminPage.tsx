@@ -473,9 +473,9 @@ export default function AdminPage() {
     if (!isValidImageFile(file)) { toast.error('Nur Bilddateien erlaubt.'); return }
     setLogoUploading(true)
     try {
-      const { base64 } = await fileToWebP(file, 512, 0.9)
+      const { base64, mime } = await fileToWebP(file, 512, 0.9, 'png')
       await GH.uploadBinary(cfg, LOGO_PATH, base64, undefined, 'chore: update logo')
-      const preview = `data:image/webp;base64,${base64}`
+      const preview = `data:${mime};base64,${base64}`
       setLogoPreview(preview)
       // Also update the favicon immediately
       const link = document.querySelector<HTMLLinkElement>("link[rel~='icon']")

@@ -8,6 +8,7 @@
 // ─────────────────────────────────────────────────────────────
 
 import type { GitHubConfig } from './github'
+import { sniffImageMime } from './imageUtils'
 
 const cache = new Map<string, Promise<string>>()
 
@@ -19,22 +20,41 @@ async function fetchDataUrl(cfg: GitHubConfig, imagePath: string): Promise<strin
   try {
     const ref  = cfg.branch ?? 'main'
     const url  = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${imagePath}?ref=${ref}&t=${Date.now()}`
+    // Raw media type: the default JSON response carries no content for files
+    // over 1 MB, which left such images blank without any error.
     const res  = await fetch(url, {
       headers: {
         Authorization: `Bearer ${cfg.token}`,
-        Accept: 'application/vnd.github+json',
+        Accept: 'application/vnd.github.raw',
         'X-GitHub-Api-Version': '2022-11-28',
       },
     })
     if (!res.ok) return ''
-    const json = await res.json() as { content: string }
-    const b64  = json.content.replace(/\n/g, '')
-    const ext  = (imagePath.split('.').pop() ?? 'webp').toLowerCase()
-    const mime = ext === 'png' ? 'image/png' : ext === 'gif' ? 'image/gif' : 'image/webp'
-    return `data:${mime};base64,${b64}`
+    const bytes = new Uint8Array(await res.arrayBuffer())
+    if (bytes.length === 0) return ''
+    const mime = sniffImageMime(bytes) ?? mimeFromExtension(imagePath)
+    return `data:${mime};base64,${bytesToBase64(bytes)}`
   } catch {
     return ''
   }
+}
+
+function mimeFromExtension(imagePath: string): string {
+  const ext = (imagePath.split('.').pop() ?? 'webp').toLowerCase()
+  if (ext === 'png') return 'image/png'
+  if (ext === 'gif') return 'image/gif'
+  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg'
+  return 'image/webp'
+}
+
+function bytesToBase64(bytes: Uint8Array): string {
+  // Chunked: String.fromCharCode(...bytes) overflows the call stack on large files
+  let binary = ''
+  const chunk = 0x8000
+  for (let i = 0; i < bytes.length; i += chunk) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + chunk))
+  }
+  return btoa(binary)
 }
 
 /** Get a data-URL for an image, fetching it via auth API if needed. Cached for session lifetime. */

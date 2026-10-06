@@ -233,12 +233,12 @@ export default function UserEditor({ existing, cfg, displays = [], roles = [], o
     setError(null)
     setUploading(true)
     try {
-      const { base64 } = await fileToWebP(file, 900, 0.85)
-      const path = generateImageFilename(form.id)
+      const { base64, mime, ext } = await fileToWebP(file, 900, 0.85)
+      const path = generateImageFilename(form.id, ext)
       const existingSha = await GH.getFileSha(cfg, path) ?? undefined
       await GH.uploadBinary(cfg, path, base64, existingSha, `chore: upload image for ${form.displayName}`)
       invalidateAuthImage(cfg, path)
-      setPreviewImg(`data:image/webp;base64,${base64}`)
+      setPreviewImg(`data:${mime};base64,${base64}`)
       setForm((prev) => ({
         ...prev,
         image: path,
