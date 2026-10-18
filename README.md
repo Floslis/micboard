@@ -71,4 +71,4 @@ npm run dev      # app on :5173, forwards /api to :8080
 Moving from the old Firebase version: `werkzeuge/umzug-firebase.py`.
 
 ## License
-[MIT](LICENSE) · A project by **[FLOTECH](https://flotech.dev)**
+[AGPL-3.0](LICENSE): free to use, change and share. Anyone who distributes it or offers it as a web service must publish their source code under the same license. © 2026 Florian Hogrebe. Versions up to 1.0.0 were released under MIT. · A project by **[FLOTECH](https://flotech.dev)**
