@@ -50,6 +50,9 @@ WantedBy=multi-user.target
 ```
 `sudo systemctl enable --now micboard`
 
+### Raspberry Pi as a display (1–2 monitors)
+One Pi 4/5 drives two screens. Flash Raspberry Pi OS Lite, then run [`werkzeuge/raspi/einrichten.sh`](werkzeuge/raspi/README.md) over SSH: it boots straight into full-screen displays, no cursor, no screen blanking, nightly restart.
+
 ### Displays
 Open `https://your-address/#/display/<id>` on the screen, or use it as an OBS browser source. The admin panel shows the link for each display.
 

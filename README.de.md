@@ -37,6 +37,9 @@ PORT=80 node server.mjs    # anderer Port
 ```
 Auf dem Raspberry Pi als Dienst, damit es beim Hochfahren startet: die Vorlage `micboard.service` steht in der [englischen Anleitung](README.md#b-raspberry-pi-or-desktop-nodejs-18), dann `sudo systemctl enable --now micboard`.
 
+### Raspberry Pi als Anzeige (1–2 Monitore)
+Ein Pi 4/5 versorgt zwei Bildschirme. Raspberry Pi OS Lite aufspielen, dann [`werkzeuge/raspi/einrichten.sh`](werkzeuge/raspi/README.md) per SSH ausführen: Der Pi startet direkt in die Anzeigen, ohne Mauszeiger, ohne Bildschirmschoner, mit nächtlichem Neustart.
+
 ### Anzeigen
 Auf dem Bildschirm `https://deine-adresse/#/display/<id>` öffnen oder als OBS-Browserquelle einbinden. Den Link zu jeder Anzeige zeigt der Admin-Bereich.
 
