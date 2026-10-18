@@ -66,7 +66,7 @@ Dateinamen `useFirebase.ts`/`useGitHub.ts` sind historisch, die Inhalte nutzen d
 Entwickeln: `npm run server` (Daten in `.dev/`) und `npm run dev` (Proxy `/api` → :8080).
 Release: Version in `package.json` erhöhen + Abschnitt in `CHANGELOG.md` → Action baut `micboard.zip`.
 
-Sicherung des alten Stands (Firebase-Export + Bilder-Repo, 18.10.2026): `../Micbard-Sicherung-2026-10-18/`
+Sicherung des alten Stands (Firebase-Export + Bilder-Repo, 18.10.2026): `../Micbard-Sicherung-2026-10-18/` (Ordner liegt neben `micboard/`)
 
 ---
 
