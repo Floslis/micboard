@@ -60,41 +60,6 @@ export interface AppSettings {
   updatedAt?: string
 }
 
-/** GitHub file entry from the API */
-export interface GitHubFile {
-  name: string
-  path: string
-  sha: string
-  size: number
-  url: string
-  html_url: string
-  git_url: string
-  download_url: string | null
-  type: 'file' | 'dir'
-  content?: string         // base64-encoded when type === 'file'
-  encoding?: string
-}
-
-/** Stored credentials (in sessionStorage, never persisted to disk) */
-export interface AuthState {
-  isAuthenticated: boolean
-  token?: string
-  owner?: string
-  dataRepo?: string
-  dataBranch?: string
-  adminPasswordHash?: string
-}
-
-/** Runtime config assembled from .env / localStorage */
-export interface Config {
-  token: string
-  owner: string
-  dataRepo: string
-  dataBranch: string
-  pollInterval: number
-  basePath: string
-}
-
 /** Wrapper around a remote data object with metadata */
 export interface RemoteData<T> {
   data: T

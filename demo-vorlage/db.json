@@ -1,0 +1,179 @@
+{
+ "rev": 1,
+ "users": {
+  "user-anna": {
+   "id": "user-anna",
+   "displayName": "Anna",
+   "fullName": "Anna Becker",
+   "role": "Worship Lead",
+   "color": "#22c55e",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-ben": {
+   "id": "user-ben",
+   "displayName": "Ben",
+   "fullName": "Ben Schröder",
+   "role": "Pastor",
+   "color": "#3b82f6",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-clara": {
+   "id": "user-clara",
+   "displayName": "Clara",
+   "fullName": "Clara Wolf",
+   "role": "Vocals",
+   "color": "#ec4899",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-david": {
+   "id": "user-david",
+   "displayName": "David",
+   "fullName": "David Neumann",
+   "role": "Moderation",
+   "color": "#f59e0b",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-emma": {
+   "id": "user-emma",
+   "displayName": "Emma",
+   "fullName": "Emma Richter",
+   "role": "Vocals",
+   "color": "#a855f7",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-felix": {
+   "id": "user-felix",
+   "displayName": "Felix",
+   "fullName": "Felix Hartmann",
+   "role": "Gitarre",
+   "color": "#ef4444",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-greta": {
+   "id": "user-greta",
+   "displayName": "Greta",
+   "fullName": "Greta Klein",
+   "role": "Vocals",
+   "color": "#14b8a6",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-hannes": {
+   "id": "user-hannes",
+   "displayName": "Hannes",
+   "fullName": "Hannes Vogel",
+   "role": "Keys",
+   "color": "#6366f1",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-ida": {
+   "id": "user-ida",
+   "displayName": "Ida",
+   "fullName": "Ida Lange",
+   "role": "Gast-Sprecherin",
+   "color": "#f97316",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  },
+  "user-jonas": {
+   "id": "user-jonas",
+   "displayName": "Jonas",
+   "fullName": "Jonas Krüger",
+   "role": "Technik",
+   "color": "#64748b",
+   "active": true,
+   "createdAt": "2026-01-01T10:00:00.000Z"
+  }
+ },
+ "displays": {
+  "display-redner": {
+   "id": "display-redner",
+   "name": "Redner Screen",
+   "layout": "grid",
+   "aspectRatio": "16:9",
+   "slots": [
+    {
+     "id": "s1",
+     "name": "Prediger",
+     "order": 0,
+     "userId": "user-ben"
+    },
+    {
+     "id": "s2",
+     "name": "Moderation",
+     "order": 1,
+     "userId": "user-david"
+    },
+    {
+     "id": "s3",
+     "name": "Gast",
+     "order": 2
+    }
+   ]
+  },
+  "display-band": {
+   "id": "display-band",
+   "name": "Band Screen",
+   "layout": "grid",
+   "aspectRatio": "16:9",
+   "slots": [
+    {
+     "id": "b1",
+     "name": "Vox 1",
+     "order": 0,
+     "userId": "user-anna"
+    },
+    {
+     "id": "b2",
+     "name": "Vox 2",
+     "order": 1,
+     "userId": "user-clara"
+    },
+    {
+     "id": "b3",
+     "name": "Vox 3",
+     "order": 2
+    },
+    {
+     "id": "b4",
+     "name": "Gitarre",
+     "order": 3,
+     "userId": "user-felix"
+    },
+    {
+     "id": "b5",
+     "name": "Keys",
+     "order": 4,
+     "userId": "user-hannes"
+    }
+   ]
+  }
+ },
+ "config": {
+  "roles": [
+   "Worship Lead",
+   "Vocals",
+   "Pastor",
+   "Moderation",
+   "Gitarre",
+   "Keys",
+   "Technik",
+   "Gast-Sprecherin"
+  ],
+  "settings": {
+   "appTitle": "MicBoard Demo",
+   "showClock": true,
+   "theme": "dark",
+   "animateTransitions": true,
+   "defaultLayout": "grid",
+   "pollInterval": 1000
+  }
+ }
+}

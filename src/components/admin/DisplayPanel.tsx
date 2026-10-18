@@ -2,8 +2,8 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { Plus, ExternalLink, RefreshCw, Pencil, Trash2, Check, X, Monitor, UserX } from 'lucide-react'
 import clsx from 'clsx'
 import type { Display, Slot, User, RemoteData, DisplayAspectRatio } from '../../types'
-import type { GitHubConfig } from '../../lib/github'
-import * as FB from '../../lib/firebase'
+import type { BildConfig } from '../../lib/bilder'
+import * as FB from '../../lib/api'
 import SlotAssignment from './SlotAssignment'
 
 const ASPECT_RATIO_OPTIONS: DisplayAspectRatio[] = ['16:9', '21:9', '32:9']
@@ -11,7 +11,7 @@ const ASPECT_RATIO_OPTIONS: DisplayAspectRatio[] = ['16:9', '21:9', '32:9']
 interface Props {
   displayData: RemoteData<Display>
   users:       RemoteData<User>[]
-  cfg:         GitHubConfig          // still needed for image reads
+  cfg:         BildConfig          // still needed for image reads
   onUpdated:   () => Promise<void>
   onDeleted?:  (id: string) => void
   basePath?:   string

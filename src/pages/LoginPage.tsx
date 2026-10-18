@@ -2,17 +2,26 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Lock, Mic } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { needsSetup, isDemo } from '../lib/api'
 
 export default function LoginPage() {
-  const { login, error, clearError } = useAuth()
+  const { login, setup, error, clearError } = useAuth()
   const navigate                     = useNavigate()
   const [password, setPassword]      = useState('')
+  const [password2, setPassword2]    = useState('')
   const [shaking, setShaking]        = useState(false)
+  const [busy, setBusy]              = useState(false)
+  const [hinweis, setHinweis]        = useState<string | null>(null)
+  // Beim allerersten Start legt man hier das Admin-Passwort fest
+  const ersteinrichtung              = needsSetup()
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    clearError()
-    const ok = login(password)
+    clearError(); setHinweis(null)
+    if (ersteinrichtung && password !== password2) { setHinweis('Die Passwörter stimmen nicht überein.'); return }
+    setBusy(true)
+    const ok = ersteinrichtung ? await setup(password) : await login(password)
+    setBusy(false)
     if (ok) {
       navigate('/admin', { replace: true })
     } else {
@@ -34,7 +43,8 @@ export default function LoginPage() {
             <Mic className="w-8 h-8 text-brand-400" />
           </div>
           <h1 className="text-3xl font-bold text-white tracking-tight">MicBoard</h1>
-          <p className="text-white/40 text-sm mt-1">Admin-Zugang</p>
+          <p className="text-white/40 text-sm mt-1">{ersteinrichtung ? 'Ersteinrichtung: Admin-Passwort festlegen' : 'Admin-Zugang'}</p>
+          {isDemo() && <p className="text-brand-300 text-sm mt-3">Demo · Passwort: <b>demo</b> · wird jede Nacht zurückgesetzt</p>}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -44,22 +54,37 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Passwort"
+              placeholder={ersteinrichtung ? 'Neues Passwort (mind. 6 Zeichen)' : 'Passwort'}
               autoFocus
-              autoComplete="current-password"
+              autoComplete={ersteinrichtung ? 'new-password' : 'current-password'}
               className="w-full bg-surface-700 border border-white/10 rounded-2xl pl-11 pr-4 py-4 text-white placeholder-white/30 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors text-lg"
             />
           </div>
 
-          {error && (
-            <p className="text-red-400 text-sm text-center animate-fade-in">{error}</p>
+          {ersteinrichtung && (
+            <div className="relative">
+              <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
+              <input
+                type="password"
+                value={password2}
+                onChange={(e) => setPassword2(e.target.value)}
+                placeholder="Passwort wiederholen"
+                autoComplete="new-password"
+                className="w-full bg-surface-700 border border-white/10 rounded-2xl pl-11 pr-4 py-4 text-white placeholder-white/30 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-colors text-lg"
+              />
+            </div>
+          )}
+
+          {(error || hinweis) && (
+            <p className="text-red-400 text-sm text-center animate-fade-in">{error ?? hinweis}</p>
           )}
 
           <button
             type="submit"
-            className="w-full py-4 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-lg transition-colors active:scale-95"
+            disabled={busy || !password}
+            className="w-full py-4 rounded-2xl bg-brand-600 hover:bg-brand-500 text-white font-bold text-lg transition-colors active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Einloggen
+            {busy ? '…' : ersteinrichtung ? 'Passwort festlegen' : 'Einloggen'}
           </button>
         </form>
 

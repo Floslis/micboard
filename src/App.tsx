@@ -2,7 +2,6 @@ import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { isConfigured } from './lib/config'
 import { useAuth } from './hooks/useAuth'
 import LoginPage   from './pages/LoginPage'
-import SetupPage   from './pages/SetupPage'
 import AdminPage   from './pages/AdminPage'
 import DisplayPage from './pages/DisplayPage'
 
@@ -16,19 +15,15 @@ function AdminRoute() {
 }
 
 // ── App root ─────────────────────────────────────────────────
-// HashRouter is required for GitHub Pages – the server only knows about
-// index.html. All routing happens after the # so GitHub Pages always
-// serves the correct file regardless of the path.
+// HashRouter: der Server kennt nur index.html, alles Weitere passiert
+// hinter dem #. So läuft die App in jedem Ordner, auf jedem Webspace.
 
 export default function App() {
   return (
     <HashRouter>
       <Routes>
         {/* Setup wizard */}
-        <Route
-          path="/setup"
-          element={<SetupPage onDone={() => { window.location.href = `${import.meta.env.BASE_URL}#/admin` }} />}
-        />
+        <Route path="/setup" element={<LoginPage />} />
 
         {/* Login page */}
         <Route path="/login" element={<LoginPage />} />

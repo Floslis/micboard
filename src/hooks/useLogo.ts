@@ -4,17 +4,17 @@
 // ─────────────────────────────────────────────────────────────
 
 import { useState, useEffect } from 'react'
-import type { GitHubConfig } from '../lib/github'
-import { imageUrl } from '../lib/github'
+import type { BildConfig } from '../lib/bilder'
+import { imageUrl } from '../lib/api'
 
-const LOGO_PATH = 'config/logo.webp'
+const LOGO_PATH = 'images/logo.png'
 
-export function useLogo(cfg: GitHubConfig | null): string | null {
+export function useLogo(cfg: BildConfig | null): string | null {
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
 
   useEffect(() => {
     if (!cfg) return
-    const url = imageUrl(cfg, LOGO_PATH)
+    const url = imageUrl(LOGO_PATH)
     // Probe with a HEAD-like fetch to see if the file exists
     const img = new Image()
     img.onload  = () => {
