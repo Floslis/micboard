@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// MicBoard – Firebase React Hooks
+// MicBoard – React-Hooks für den eigenen Server (Dateiname historisch)
 // Returns RemoteData<T>-compatible objects (sha='') so existing
 // components work without change.  sha is a GitHub concept that
 // Firebase doesn't need – it's simply ignored in all FB writes.
@@ -7,7 +7,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import type { User, Display, AppSettings, RemoteData } from '../types'
-import * as FB from '../lib/firebase'
+import * as FB from '../lib/api'
 
 // ── Users ─────────────────────────────────────────────────────
 

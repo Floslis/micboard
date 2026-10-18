@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom'
 import { Search, X, UserX, UserMinus, UserPlus, Clock } from 'lucide-react'
 import clsx from 'clsx'
 import type { User, Slot, RemoteData } from '../../types'
-import type { GitHubConfig } from '../../lib/github'
+import type { BildConfig } from '../../lib/bilder'
 import { positionToCss } from '../../lib/imageUtils'
 import { useAuthImage } from '../../hooks/useAuthImage'
 import { getAuthImageUrl } from '../../lib/imageCache'
@@ -17,7 +17,7 @@ import { getAuthImageUrl } from '../../lib/imageCache'
 interface Props {
   slot:         Slot
   users:        RemoteData<User>[]
-  cfg:          GitHubConfig
+  cfg:          BildConfig
   onAssign:     (slotId: string, userId: string | undefined) => Promise<void>
   onQuickAdd?:  (slotId: string, name: string, temporary?: boolean) => Promise<void>
   saving?:      boolean
@@ -25,9 +25,9 @@ interface Props {
 
 // ── Per-row avatar ────────────────────────────────────────────
 
-function UserAvatar({ user, cfg }: { user: User; cfg: GitHubConfig }) {
+function UserAvatar({ user, cfg }: { user: User; cfg: BildConfig }) {
   const raw = user.image
-    ? `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch ?? 'main'}/${user.image}`
+    ? `${user.image}`
     : null
   const [src, setSrc] = useState<string | null>(raw)
 

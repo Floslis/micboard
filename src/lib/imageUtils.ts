@@ -124,7 +124,9 @@ export function scaleToCss(scale = 1.1): string {
 
 /** Generate a unique file name for an uploaded image */
 export function generateImageFilename(userId: string, ext = 'webp'): string {
-  return `images/${userId}.${ext}`
+  // Neuer Name je Upload, damit Browser und Anzeigen nie ein altes Foto aus dem Speicher zeigen
+  const id = userId.toLowerCase().replace(/[^a-z0-9_-]/g, '')
+  return `images/${id}-${Date.now().toString(36)}.${ext}`
 }
 
 /** Check if a file is a supported image type */

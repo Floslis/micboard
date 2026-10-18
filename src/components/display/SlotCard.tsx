@@ -1,14 +1,14 @@
 import { memo } from 'react'
 import clsx from 'clsx'
 import type { Slot, User } from '../../types'
-import type { GitHubConfig } from '../../lib/github'
+import type { BildConfig } from '../../lib/bilder'
 import { positionToCss } from '../../lib/imageUtils'
 import { useAuthImage } from '../../hooks/useAuthImage'
 
 interface Props {
   slot:         Slot
   user?:        User
-  cfg:          GitHubConfig
+  cfg:          BildConfig
   /** @deprecated pass cfg instead */
   imageBaseUrl?: string
 }

@@ -46,74 +46,27 @@ rm -f .git/HEAD.lock && git checkout main && git merge dev && git push origin ma
 
 ## Projekt-Überblick
 
-**MicBoard** – Live-Mikrofon & Positionsanzeige für Kirchen/Events.  
-Tech: React 18 + TypeScript + Vite + TailwindCSS + **Firebase Realtime Database** als Daten-Backend.  
-Bilder (Nutzerfotos) liegen weiterhin in einem privaten GitHub-Repo; alle strukturierten Daten (Nutzer, Displays, Rollen, Einstellungen) liegen in Firebase.
+**MicBoard** – Live-Mikrofon- und Positionsanzeige für Kirchen/Events. **Seit v1.0 selbst betrieben**, kein Firebase, kein GitHub-Speicher, keine Geheimnisse im Build.
+Tech: React 18 + TypeScript + Vite + Tailwind, dazu ein winziger eigener Server in zwei Fassungen mit gleicher Schnittstelle:
 
-### Architektur: Firebase + GitHub
+| Datei | Wofür |
+|---|---|
+| `public/api/index.php` | Server für jeden PHP-Webspace (IONOS: Gemeinde `mic-icf.flotech.dev`, Demo `micboard.flotech.dev`) |
+| `public/server.mjs` | Server für Raspberry Pi und Desktop (Node 18+, ohne Pakete) |
+| `src/lib/api.ts` | Datenschicht der App: gleiche Funktionen wie früher `firebase.ts`, Live-Abgleich per Abfrage jede Sekunde (`?r=state&rev=N`) |
+| `src/lib/bilder.ts`, `hooks/useAuthImage.ts` | Fotos kommen öffentlich aus `images/`, jeder Upload bekommt einen neuen Dateinamen |
+| `src/hooks/useAuth.tsx` | Anmeldung: Passwort → Schlüssel für 30 Tage in localStorage |
+| `demo-vorlage/db.json` | Demo-Daten (ausgedachte Personen). Liegt sie als `demo/db.json` neben der App: Passwort `demo`, täglicher Reset |
+| `werkzeuge/umzug-firebase.py` | einmaliger Umzug aus Firebase + Bilder-Repo |
+| `hochladen.sh gemeinde|demo` | baut und lädt per SFTP hoch, `daten/` und `images/` auf dem Server bleiben unberührt |
 
-| Was | Wo | Warum |
-|---|---|---|
-| Nutzer, Displays, Rollen, Einstellungen | Firebase Realtime DB | < 100 ms Writes, WebSocket Echtzeit |
-| Nutzerfotos / Bilder | GitHub Daten-Repo | Kostenlos, keine Firebase Storage nötig |
-| Hosting / App | GitHub Pages | Kostenlos, einfaches Deploy via Actions |
+Daten auf dem Server: `daten/db.json` (alles, mit `rev`), `daten/auth.json` (Passwort-Hash, Token-Hashes), beides per `.htaccess` gesperrt.
+Dateinamen `useFirebase.ts`/`useGitHub.ts` sind historisch, die Inhalte nutzen den eigenen Server.
 
-Firebase Free Tier (Spark): 1 GB Speicher, 10 GB/Monat Transfer – für MicBoard völlig ausreichend.
+Entwickeln: `npm run server` (Daten in `.dev/`) und `npm run dev` (Proxy `/api` → :8080).
+Release: Version in `package.json` erhöhen + Abschnitt in `CHANGELOG.md` → Action baut `micboard.zip`.
 
-### Required GitHub Secrets (Repository → Settings → Secrets → Actions)
-
-```
-VITE_ADMIN_PASSWORD         # Passwort für Admin-Login
-VITE_GITHUB_TOKEN           # GitHub PAT (nur für Bild-Uploads nötig)
-VITE_GITHUB_OWNER           # GitHub-Benutzername (für Bild-Uploads)
-VITE_DATA_REPO              # Name des privaten Bild-Repos
-VITE_DATA_BRANCH            # Branch des Bild-Repos (default: main)
-VITE_FIREBASE_API_KEY       # Firebase Web API Key
-VITE_FIREBASE_PROJECT_ID    # Firebase Project ID (z. B. icfb-miceboard)
-VITE_FIREBASE_DATABASE_URL  # Realtime DB URL (z. B. https://xxx.europe-west1.firebasedatabase.app)
-```
-
-> **Hinweis:** Secrets haben immer Vorrang vor localStorage. Nach einer Secret-Änderung + Redeploy gilt sofort der neue Wert.
-
-### Firebase Security Rules
-
-Aktuell: Test-Modus (public read+write). Nach erfolgreicher Migration umstellen auf:
-
-```json
-{
-  "rules": {
-    ".read": true,
-    ".write": "auth != null"
-  }
-}
-```
-
-Admin-Login löst `signInAnonymously()` aus → schreibberechtigt. Displays/Read-only-Clients lesen ohne Auth.
-
-### Migration (einmalig, GitHub → Firebase)
-
-`migrate.html` im Repo-Root öffnen → GitHub-Token + Firebase-Daten eingeben → Migrieren.  
-Bilder werden dabei **nicht** migriert (sie bleiben auf GitHub und funktionieren weiterhin).
-
----
-
-### Wichtige Dateien
-
-- `src/lib/firebaseApp.ts` – Firebase-Singleton (App, Database, Auth)
-- `src/lib/firebase.ts` – alle Firebase CRUD-Operationen + Echtzeit-Listener
-- `src/hooks/useFirebase.ts` – React-Hooks (useUsers, useDisplays, useRoles, useSettings) mit Firebase
-- `src/lib/github.ts` – GitHub API Calls **nur noch für Bilder** (uploadBinary, imageUrl, getFileSha)
-- `src/pages/AdminPage.tsx` – Admin-Panel (Übersicht, Nutzer, Displays, Einstellungen)
-- `src/components/display/DisplayView.tsx` – Live-Display mit Firebase Echtzeit-Listener (kein Polling)
-- `src/components/admin/SlotAssignment.tsx` – Zuweisung per Modal (optimistisches UI)
-- `src/components/admin/UserEditor.tsx` – Nutzer anlegen/bearbeiten
-- `src/components/admin/DisplayPanel.tsx` – Display konfigurieren
-
-### Echtzeit & Performance
-
-- `DisplayView.tsx` verwendet `onValue()` (Firebase WebSocket) statt Polling → sofortige Updates
-- Slot-Zuweisungen sind optimistisch: UI aktualisiert sofort, Firebase schreibt im Hintergrund
-- `useFirebase.ts` Hooks geben `RemoteData<T>`-kompatible Objekte zurück (`sha: ''`) → alle Komponenten funktionieren ohne Änderungen
+Sicherung des alten Stands (Firebase-Export + Bilder-Repo, 18.10.2026): `../Micbard-Sicherung-2026-10-18/`
 
 ---
 

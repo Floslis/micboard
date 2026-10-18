@@ -6,13 +6,13 @@
 
 import { useState, useEffect, memo } from 'react'
 import type { User, Display } from '../../types'
-import type { GitHubConfig } from '../../lib/github'
-import * as FB from '../../lib/firebase'
+import type { BildConfig } from '../../lib/bilder'
+import * as FB from '../../lib/api'
 import SlotCard from './SlotCard'
 
 interface Props {
   displayId:     string
-  cfg:           GitHubConfig   // Still needed for image reading
+  cfg:           BildConfig   // Still needed for image reading
   showClock?:    boolean
   pollInterval?: number         // Kept for API compat; unused (Firebase is real-time)
 }

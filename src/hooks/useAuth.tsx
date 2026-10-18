@@ -1,81 +1,72 @@
 // ─────────────────────────────────────────────────────────────
-// MicBoard – Auth Context + Hook
-// Single source of truth for authentication state.
-// All components that call useAuth() share the SAME state.
+// MicBoard – Anmeldung am eigenen Server.
+// Der Server gibt nach dem Passwort einen Schlüssel (30 Tage gültig),
+// der im Browser bleibt. Volunteers müssen sich so nicht jedes Mal anmelden.
 // ─────────────────────────────────────────────────────────────
 
 import {
   createContext, useContext, useState, useCallback,
   useEffect, type ReactNode,
 } from 'react'
-import { ADMIN_PASSWORD } from '../lib/config'
-import { signInAdmin, signOutAdmin } from '../lib/firebase'
-
-const SESSION_KEY = 'micboard_auth'
+import * as API from '../lib/api'
 
 interface AuthCtx {
   isAuthenticated: boolean
   error: string | null
-  login: (password: string) => boolean
+  login: (password: string) => Promise<boolean>
+  setup: (password: string) => Promise<boolean>
   logout: () => void
   clearError: () => void
 }
 
 const AuthContext = createContext<AuthCtx | null>(null)
 
-// ── Provider ─────────────────────────────────────────────────
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    try { return sessionStorage.getItem(SESSION_KEY) === 'true' } catch { return false }
-  })
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => !!API.getToken())
   const [error, setError] = useState<string | null>(null)
 
-  // Keep sessionStorage in sync
+  // Lehnt der Server den Schlüssel ab (abgelaufen, Passwort geändert), zurück zur Anmeldung
   useEffect(() => {
-    try {
-      if (isAuthenticated) sessionStorage.setItem(SESSION_KEY, 'true')
-      else sessionStorage.removeItem(SESSION_KEY)
-    } catch { /* ignore */ }
-  }, [isAuthenticated])
+    const weg = () => setIsAuthenticated(false)
+    window.addEventListener('micboard-abgemeldet', weg)
+    return () => window.removeEventListener('micboard-abgemeldet', weg)
+  }, [])
 
-  // On every page load: if already authenticated, re-establish Firebase auth.
-  // Firebase Anonymous Auth does not survive a full page reload unless we call
-  // signInAnonymously() again — sessionStorage remembers our app state but not
-  // the Firebase session.
-  useEffect(() => {
-    if (isAuthenticated) {
-      signInAdmin().catch(() => { /* non-fatal */ })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // intentionally only on mount
-
-  const login = useCallback((password: string): boolean => {
+  const login = useCallback(async (password: string): Promise<boolean> => {
     setError(null)
-    const expected = ADMIN_PASSWORD
-    if (!expected || password === expected) {
+    try {
+      await API.login(password)
       setIsAuthenticated(true)
-      // Sign in to Firebase so write rules pass
-      signInAdmin().catch(() => { /* non-fatal if offline */ })
       return true
+    } catch (e) {
+      setError((e as Error).message === 'Falsches Passwort' ? 'Falsches Passwort. Bitte erneut versuchen.' : (e as Error).message)
+      return false
     }
-    setError('Falsches Passwort. Bitte erneut versuchen.')
-    return false
+  }, [])
+
+  const setup = useCallback(async (password: string): Promise<boolean> => {
+    setError(null)
+    try {
+      await API.setupPassword(password)
+      setIsAuthenticated(true)
+      return true
+    } catch (e) {
+      setError((e as Error).message)
+      return false
+    }
   }, [])
 
   const logout = useCallback(() => {
     setIsAuthenticated(false)
-    signOutAdmin().catch(() => { /* non-fatal */ })
+    API.logout().catch(() => {})
   }, [])
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, error, login, logout, clearError: () => setError(null) }}>
+    <AuthContext.Provider value={{ isAuthenticated, error, login, setup, logout, clearError: () => setError(null) }}>
       {children}
     </AuthContext.Provider>
   )
 }
-
-// ── Hook ─────────────────────────────────────────────────────
 
 export function useAuth(): AuthCtx {
   const ctx = useContext(AuthContext)

@@ -7,9 +7,8 @@ import { useState, useRef, useCallback, useMemo } from 'react'
 import { Upload, X, Save, Trash2, RefreshCw, ChevronDown } from 'lucide-react'
 import clsx from 'clsx'
 import type { User, RemoteData, Display, DisplayAspectRatio } from '../../types'
-import type { GitHubConfig } from '../../lib/github'
-import * as GH from '../../lib/github'
-import * as FB from '../../lib/firebase'
+import type { BildConfig } from '../../lib/bilder'
+import * as FB from '../../lib/api'
 import {
   fileToWebP,
   isValidImageFile,
@@ -21,7 +20,7 @@ import ImageEditor, { DISPLAY_ASPECT_RATIOS } from './ImageEditor'
 
 interface Props {
   existing?:  RemoteData<User>
-  cfg:        GitHubConfig
+  cfg:        BildConfig
   displays?:  RemoteData<Display>[]   // for slot preview
   roles?:     string[]                // predefined roles from settings
   onSaved:    (user: User) => void
@@ -235,8 +234,7 @@ export default function UserEditor({ existing, cfg, displays = [], roles = [], o
     try {
       const { base64, mime, ext } = await fileToWebP(file, 900, 0.85)
       const path = generateImageFilename(form.id, ext)
-      const existingSha = await GH.getFileSha(cfg, path) ?? undefined
-      await GH.uploadBinary(cfg, path, base64, existingSha, `chore: upload image for ${form.displayName}`)
+      await FB.uploadImage(path, base64)
       invalidateAuthImage(cfg, path)
       setPreviewImg(`data:${mime};base64,${base64}`)
       setForm((prev) => ({

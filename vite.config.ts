@@ -4,9 +4,8 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  // Set base to repo name for GitHub Pages deployment
-  // Change this to match your repository name or set to '/' if using custom domain
-  base: process.env.VITE_BASE_PATH || '/',
+  // Relative Pfade: die fertige App läuft in jedem Ordner (Webspace, Pi, Desktop)
+  base: './',
   build: {
     outDir: 'dist',
     sourcemap: false,
@@ -21,5 +20,7 @@ export default defineConfig({
   server: {
     port: 5173,
     strictPort: false,
+    // Beim Entwickeln die Schnittstelle vom lokalen server.mjs holen (npm run server)
+    proxy: { '/api': 'http://localhost:8080', '/images': 'http://localhost:8080' },
   },
 })

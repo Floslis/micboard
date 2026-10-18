@@ -13,10 +13,9 @@ import clsx from 'clsx'
 import type { User, Display, RemoteData } from '../types'
 import { useAuth } from '../hooks/useAuth'
 import { useUsers, useDisplays, useRoles } from '../hooks/useFirebase'
-import { useGitHubConfig } from '../hooks/useGitHub'
-import { loadConfig } from '../lib/config'
-import * as FB from '../lib/firebase'
-import * as GH from '../lib/github'
+import { useBildConfig } from '../hooks/useGitHub'
+import { basePath } from '../lib/config'
+import * as FB from '../lib/api'
 import { fileToWebP, isValidImageFile } from '../lib/imageUtils'
 import { useLogo, LOGO_PATH } from '../hooks/useLogo'
 import DisplayPanel from '../components/admin/DisplayPanel'
@@ -24,7 +23,7 @@ import UserEditor from '../components/admin/UserEditor'
 import ToastContainer, { useToasts } from '../components/common/Toast'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import { useAuthImage } from '../hooks/useAuthImage'
-import type { GitHubConfig } from '../lib/github'
+import type { BildConfig } from '../lib/bilder'
 
 type Section = 'overview' | 'displays' | 'users' | 'settings'
 
@@ -32,7 +31,7 @@ type Section = 'overview' | 'displays' | 'users' | 'settings'
 
 function UserCard({
   user, cfg, onClick,
-}: { user: RemoteData<User>; cfg: GitHubConfig; onClick: () => void }) {
+}: { user: RemoteData<User>; cfg: BildConfig; onClick: () => void }) {
   const bgUrl = useAuthImage(user.data.image ? cfg : null, user.data.image ?? null)
   const u = user.data
   return (
@@ -76,9 +75,9 @@ function UserCard({
 // ── Overview card – one display with tile OR list view ─────────
 // Handles its own slot-assignment saves (SHA ref pattern).
 
-function OverviewAvatar({ user, cfg }: { user: User; cfg: GitHubConfig }) {
+function OverviewAvatar({ user, cfg }: { user: User; cfg: BildConfig }) {
   const raw = user.image
-    ? `https://raw.githubusercontent.com/${cfg.owner}/${cfg.repo}/${cfg.branch ?? 'main'}/${user.image}`
+    ? `${user.image}`
     : null
   const [src, setSrc] = useState<string | null>(raw)
   const handleError = async () => {
@@ -107,7 +106,7 @@ function DisplayOverviewCard({
 }: {
   displayData: RemoteData<Display>
   users:       RemoteData<User>[]
-  cfg:         GitHubConfig
+  cfg:         BildConfig
   onUpdated:   () => Promise<void>
   viewMode:    'tile' | 'list'
   basePath:    string
@@ -364,7 +363,7 @@ function RolesEditor({
 
 export default function AdminPage() {
   const { logout }                  = useAuth()
-  const cfg                         = useGitHubConfig()
+  const cfg                         = useBildConfig()
   const logoUrl                     = useLogo(cfg)
   const { users, loading: ul, error: ue, reload: reloadUsers, save: saveUser, remove: removeUser } = useUsers()
   const { displays, loading: dl, error: de, reload: reloadDisplays } = useDisplays()
@@ -379,7 +378,6 @@ export default function AdminPage() {
   const { toasts, toast, dismiss }      = useToasts()
 
   const activeDisplay = displays.find((d) => d.data.id === activeDisplayId)
-  const runtimeCfg    = loadConfig()
 
   // ── Select first display automatically ──────────────────
   // Must be in useEffect – calling setState during render causes infinite loops
@@ -474,7 +472,7 @@ export default function AdminPage() {
     setLogoUploading(true)
     try {
       const { base64, mime } = await fileToWebP(file, 512, 0.9, 'png')
-      await GH.uploadBinary(cfg, LOGO_PATH, base64, undefined, 'chore: update logo')
+      await FB.uploadImage(LOGO_PATH, base64)
       const preview = `data:${mime};base64,${base64}`
       setLogoPreview(preview)
       // Also update the favicon immediately
@@ -614,7 +612,7 @@ export default function AdminPage() {
             cfg={cfg}
             onUpdated={handleDisplayUpdated}
             onDeleted={handleDisplayDeleted}
-            basePath={runtimeCfg?.basePath ?? '/'}
+            basePath={basePath()}
           />
         )}
 
@@ -674,7 +672,7 @@ export default function AdminPage() {
                   cfg={cfg}
                   onUpdated={handleDisplayUpdated}
                   viewMode={overviewMode}
-                  basePath={runtimeCfg?.basePath ?? '/'}
+                  basePath={basePath()}
                 />
               ))}
             </div>

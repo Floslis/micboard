@@ -1,0 +1,25 @@
+# Wird die Version in package.json erhöht, entsteht ein Release mit fertigem micboard.zip
+# (App + PHP-Server + Node-Server). Keine Geheimnisse beim Bauen nötig.
+name: Release
+on:
+  push:
+    branches: [main]
+    paths: [package.json]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci && npm run build
+      - name: Release anlegen
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          V=$(node -p "require('./package.json').version")
+          if gh release view "v$V" >/dev/null 2>&1; then echo "v$V gibt es schon"; exit 0; fi
+          awk -v v="## $V" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
+          mv dist micboard && zip -qr micboard.zip micboard
+          gh release create "v$V" micboard.zip --title "MicBoard $V" --notes-file notes.md
