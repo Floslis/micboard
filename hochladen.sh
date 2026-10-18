@@ -5,12 +5,14 @@
 # Daten (daten/) und Fotos (images/) auf dem Server werden nie überschrieben.
 set -euo pipefail
 cd "$(dirname "$0")"
+# Erst die Zugangsdaten laden: sftp.conf setzt selbst ZIEL=flotech, das darf unser Ziel nicht überschreiben
+source "$HOME/.config/flotech-web/sftp.conf"
 case "${1:-}" in
   gemeinde) ZIEL=mic-icf; DEMO=0 ;;
   demo)     ZIEL=micboard; DEMO=1 ;;
   *) echo "Aufruf: ./hochladen.sh gemeinde|demo" >&2; exit 1 ;;
 esac
-source "$HOME/.config/flotech-web/sftp.conf"
+case "$ZIEL" in mic-icf|micboard) ;; *) echo "Falsches Ziel: $ZIEL" >&2; exit 1 ;; esac
 PASS=$(security find-generic-password -s flotech-sftp -a "$BENUTZER" -w)
 npm run build >/dev/null
 TMP=$(mktemp -d); cp -R dist/. "$TMP/"
