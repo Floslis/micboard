@@ -8,7 +8,7 @@
 
 import type { User, Display, AppSettings } from '../types'
 
-const API = 'api/'
+const API = 'api/index.php'
 const TOKEN_KEY = 'micboard_token'
 const TAKT_SICHTBAR = 1000
 const TAKT_VERSTECKT = 5000
